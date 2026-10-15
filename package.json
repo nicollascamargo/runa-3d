@@ -1,0 +1,13 @@
+{
+  "name": "runa-3d",
+  "private": true,
+  "type": "module",
+  "description": "Runa 3D: RPG tático controlado por gestos. O mago (runas) e o guerreiro (golpes de mão).",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node tests/cursor.test.mjs && node tests/pinch.test.mjs && node tests/interaction.test.mjs && node tests/calibration.test.mjs && node tests/runes.test.mjs && node tests/runes-hard.test.mjs && node tests/tracker.test.mjs && node tests/guide.test.mjs && node tests/practice.test.mjs && node tests/combat.test.mjs && node tests/warrior.test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  }
+}

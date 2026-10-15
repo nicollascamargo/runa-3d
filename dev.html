@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runa 3D · O Mago (código-fonte)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="styles/main.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="stage"></div>
+
+  <header class="title">
+    <h1>Runa 3D</h1>
+    <span>O mago com runas traçadas no ar · o guerreiro com golpes de mão</span>
+  </header>
+
+  <aside class="panel" id="panel" aria-label="Painel de testes">
+    <button class="panel-toggle" id="panelToggle" type="button" aria-label="Recolher painel">≡</button>
+    <h2>Testes</h2>
+    <ul class="howto">
+      <li><b>Magia:</b> <kbd>M</kbd> (ou mão aberta) abre a roda; <kbd>Enter</kbd> (ou punho) escolhe; comece no ponto que pulsa e passe por cima da runa (mouse ou indicador): o cursor gruda nela; clique (ou pinça) trava o alvo; <kbd>Enter</kbd> (ou punho) lança</li>
+      <li><b>Treino de runas:</b> <kbd>O</kbd>: escolha uma runa e pratique, sem gastar mana nem turno</li>
+      <li><b>Turno:</b> <kbd>N</kbd> (ou polegar para cima) encerra; <kbd>Esc</kbd> (ou polegar para baixo) volta uma etapa</li>
+      <li><b>Guerreiro:</b> <kbd>Tab</kbd> troca de personagem; pinça (ou botão) nele levanta e leva pelo ar até uma casa verde; clique numa casa verde para andar; punho fechado varrendo para o lado (ou <kbd>1</kbd>) faz o Corte Horizontal; <kbd>Y</kbd> liga o treino</li>
+      <li><b>Pegar o mago ou o guerreiro:</b> aperte o botão esquerdo em cima dele (ou feche a pinça na câmera) e arraste</li>
+      <li><b>Pousar:</b> solte o botão (ou abra os dedos) sobre uma casa livre</li>
+      <li><b>Cancelar no ar:</b> <kbd>Esc</kbd>. <b>Voltar o último movimento:</b> <kbd>Esc</kbd> com o mago no chão, ou polegar para baixo</li>
+      <li><b>Câmera:</b> botão direito gira, roda dá zoom, ou <kbd>Q</kbd> <kbd>E</kbd> <kbd>+</kbd> <kbd>−</kbd></li>
+    </ul>
+    <div class="buttons">
+      <button type="button" data-cmd="hand.camera" id="panelCam">Ligar câmera (gestos) <kbd>C</kbd></button>
+      <button type="button" data-cmd="vision.calibrate">Calibrar a mão (passo a passo)</button>
+      <button type="button" data-cmd="vision.diag" aria-pressed="false">Diagnóstico da visão <kbd>X</kbd></button>
+      <button type="button" data-cmd="vision.eval">Avaliar a câmera (precisão e atraso)</button>
+      <button type="button" data-cmd="party.toggle">Trocar mago / guerreiro <kbd>Tab</kbd></button>
+      <button type="button" data-cmd="spell.open">Abrir magias <kbd>M</kbd></button>
+      <button type="button" data-cmd="turn.end">Encerrar turno <kbd>N</kbd></button>
+      <button type="button" data-cmd="rune.trainer">Treino de runas <kbd>O</kbd></button>
+      <button type="button" data-cmd="rune.guided" aria-pressed="true">Trilho ou desenho livre (Normal) <kbd>I</kbd></button>
+      <button type="button" data-cmd="rune.debug" aria-pressed="false">Depuração das runas <kbd>D</kbd></button>
+      <button type="button" data-cmd="combat.restore">Restaurar mana e recargas <kbd>U</kbd></button>
+      <button type="button" data-cmd="vision.resetProfile">Apagar a calibração da mão</button>
+      <button type="button" data-cmd="combat.enemies" aria-pressed="true">Autômatos andam e atacam</button>
+      <button type="button" data-cmd="gfx.quality">Qualidade gráfica: <b id="gfxName">alta</b> <kbd>L</kbd></button>
+      <button type="button" data-cmd="action.cancel">Voltar / cancelar <kbd>Esc</kbd></button>
+      <button type="button" data-cmd="mage.focus">Focar no mago <kbd>F</kbd></button>
+      <button type="button" data-cmd="camera.reset">Ver o tabuleiro <kbd>R</kbd></button>
+      <button type="button" data-cmd="rig.toggle" aria-pressed="false">Mostrar esqueleto <kbd>K</kbd></button>
+      <button type="button" data-cmd="rig.nextPose">Pose de teste: <b id="poseName">Repouso</b> <kbd>P</kbd></button>
+      <button type="button" data-cmd="cloth.toggle" aria-pressed="true">Manto ao vento <kbd>V</kbd></button>
+      <button type="button" data-cmd="dummy.testHit">Testar dano <kbd>T</kbd></button>
+      <button type="button" data-cmd="mage.export">Baixar mago.glb <kbd>G</kbd></button>
+      <button type="button" data-cmd="warrior.export">Baixar guerreiro.glb</button>
+    </div>
+    <h3 class="cfg-title">Configurações</h3>
+    <div class="cfg">
+      <span class="cfg-label" id="diffLabel">Dificuldade das runas</span>
+      <div class="seg" role="group" aria-labelledby="diffLabel">
+        <button type="button" data-cmd="rune.difficulty" data-value="facil" aria-pressed="true">Fácil</button>
+        <button type="button" data-cmd="rune.difficulty" data-value="normal" aria-pressed="false">Normal</button>
+        <button type="button" data-cmd="rune.difficulty" data-value="avancado" aria-pressed="false">Avançado</button>
+      </div>
+      <p class="cfg-help" id="diffHelp"></p>
+    </div>
+    <dl class="stats">
+      <dt>Mago</dt><dd id="statState">parado</dd>
+      <dt>Personagem</dt><dd id="statActive">Mago</dd>
+      <dt>Magia</dt><dd id="statSpell">livre</dd>
+      <dt>Guerreiro</dt><dd id="statWarrior">livre</dd>
+      <dt>Turno</dt><dd id="statTurn">jogador</dd>
+      <dt>Casa do mago</dt><dd id="statMageTile">–</dd>
+      <dt>Casa sob o cursor</dt><dd id="statTile">–</dd>
+      <dt>Entrada</dt><dd id="statInput">mouse</dd>
+      <dt>Quadros/s</dt><dd id="statFps">–</dd>
+      <dt>Triângulos do mago</dt><dd id="statTris">–</dd>
+      <dt>Ossos</dt><dd id="statBones">–</dd>
+    </dl>
+    <p class="next">Feito: <b>A</b> mago e arena · <b>B</b> telecinese e gestos · <b>D</b> as oito magias por runas, combate por turnos e efeitos. Próximas: <b>C</b> animações · <b>E</b> combate.</p>
+  </aside>
+
+  <section class="cam-card" id="camCard" aria-label="Câmera e gestos">
+    <div class="cam">
+      <video id="camVideo" playsinline muted></video>
+      <canvas id="camOverlay"></canvas>
+      <div class="cam-empty" id="camEmpty">
+        <p id="camMsg">Ligue a câmera para pegar o mago com a pinça e desenhar runas no ar. O vídeo fica só no seu computador e não é gravado.</p>
+        <button class="primary" id="camBtn" type="button">Ligar câmera <kbd>C</kbd></button>
+      </div>
+    </div>
+    <div class="gesture">
+      <span class="now" id="gestureNow">Câmera desligada</span>
+      <span class="what" id="gestureWhat">usando o mouse</span>
+      <span class="hold"><i id="gestureHold"></i></span>
+    </div>
+    <ul class="legend">
+      <li><b>Indicador</b> move o cursor; na magia, passa por cima da runa</li>
+      <li><b>Pinça</b> pega o mago ou o guerreiro (<b>abrir</b> pousa); na magia, trava o alvo</li>
+      <li><b>Mão aberta</b> (segure) abre a roda de magias</li>
+      <li><b>Punho</b> (segure) escolhe a magia e lança</li>
+      <li><b>Polegar para baixo</b> (segure) volta uma etapa</li>
+      <li><b>Polegar para cima</b> (segure) encerra o turno</li>
+      <li><b>Sinal de V</b> (segure) esconde o painel</li>
+    </ul>
+    <div class="cam-tools">
+      <button type="button" data-cmd="vision.calibrate">Calibrar a mão</button>
+      <button type="button" id="calibBtn" hidden>Calibrar alcance</button>
+      <button type="button" id="camOff" hidden>Desligar câmera</button>
+      <button type="button" id="camMin" aria-label="Recolher a câmera">Recolher</button>
+    </div>
+  </section>
+
+  <div class="hand-cursor" id="handCursor" hidden>
+    <span class="ring"></span>
+    <svg class="hold-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" pathLength="100"/></svg>
+    <span class="cursor-label" id="cursorLabel"></span>
+  </div>
+  <div class="calib" id="calib" hidden role="status">
+    <b>Calibrando o alcance</b>
+    <span>Passeie a mão devagar até os cantos que você alcança com conforto, como se apontasse para as bordas da tela.</span>
+    <span class="calib-bar"><i id="calibBar"></i></span>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="loading" id="loading">Montando o mago e a caverna…</div>
+
+  <!-- Versão de desenvolvimento: lê os módulos de src/ direto. Precisa de servidor (iniciar.command abre esta página). -->
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
