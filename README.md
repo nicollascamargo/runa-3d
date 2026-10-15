@@ -8,7 +8,7 @@ RPG tático em 3D controlado pelos **gestos da mão** na webcam. Com o **Mago**,
 
 **[Jogar no navegador](https://nicollascamargo.github.io/runa-3d/)**: use o **Google Chrome** num computador.
 
-Ou baixe a versão de teste em **[Releases](https://github.com/nicollascamargo/runa-3d/releases/latest)**, descompacte e abra o `index.html` no Chrome.
+Ou baixe a versão de teste em **[Releases](https://github.com/nicollascamargo/runa-3d/releases)**, descompacte e abra o `index.html` no Chrome.
 
 ## Como jogar
 
